@@ -17,6 +17,7 @@ import com.onarandombox.MultiverseCore.api.MultiverseWorld;
 import com.onarandombox.MultiverseCore.api.SafeTTeleporter;
 import com.onarandombox.MultiverseCore.api.WorldPurger;
 import com.onarandombox.MultiverseCore.event.MVWorldDeleteEvent;
+import i.mrhua269.zutils.api.ZAPIEntryPoint;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.Location;
@@ -482,8 +483,11 @@ public class WorldManager implements MVWorldManager {
 
         WorldProperties mvworld = worldsFromTheConfig.get(worldName);
         World cbworld;
-        try {
-            cbworld = creator.createWorld();
+
+        cbworld = Bukkit.getWorld(worldName);
+
+        if (cbworld == null) try {
+            cbworld = ZAPIEntryPoint.getWorldManager().createWorld(creator);
         } catch (Exception e) {
             e.printStackTrace();
             brokenWorld(worldName);

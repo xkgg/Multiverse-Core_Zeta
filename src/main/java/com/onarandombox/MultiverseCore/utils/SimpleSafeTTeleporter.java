@@ -215,7 +215,7 @@ public class SimpleSafeTTeleporter implements SafeTTeleporter {
             if (teleportee.teleport(safeLoc)) {
                 Vector v = d.getVelocity();
                 if (v != null && !DEFAULT_VECTOR.equals(v)) {
-                    Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
+                    plugin.getMorePaperLib().scheduling().globalRegionalScheduler().runDelayed(() -> {
                         teleportee.setVelocity(d.getVelocity());
                     }, 1);
                 }

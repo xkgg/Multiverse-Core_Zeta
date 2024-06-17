@@ -185,7 +185,7 @@ public class VersionCommand extends MultiverseCommand {
         };
 
         // Run the log posting operation asynchronously, since we don't know how long it will take.
-        logPoster.runTaskAsynchronously(this.plugin);
+        plugin.getMorePaperLib().scheduling().asyncScheduler().run(logPoster);
     }
 
     /**

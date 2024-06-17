@@ -247,85 +247,81 @@ public class MVPlayerListener implements Listener {
                 + "' to go to '" + worldName + "'.");
     }
 
-    /**
-     * This method is called to adjust the portal location to the actual portal location (and not
-     * right outside of it.
-     * @param event The Event that was fired.
-     */
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void playerPortalCheck(PlayerPortalEvent event) {
-        if (event.isCancelled() || event.getFrom() == null) {
-            return;
-        }
+     // /**
+     //  * This method is called to adjust the portal location to the actual portal location (and not
+     //  * right outside of it.
+     //  * @param event The Event that was fired.
+     //  */
+     // @EventHandler(priority = EventPriority.LOWEST)
+     // public void playerPortalCheck(PlayerPortalEvent event) {
+     //     if (event.isCancelled() || event.getFrom() == null) {
+     //         return;
+     //     }
+     //
+     //     // REMEMBER! getTo MAY be NULL HERE!!!
+     //     // If the player was actually outside of the portal, adjust the from location
+     //     if (event.getFrom().getWorld().getBlockAt(event.getFrom()).getType() != Material.NETHER_PORTAL) {
+     //         Location newloc = this.plugin.getSafeTTeleporter().findPortalBlockNextTo(event.getFrom());
+     //         // TODO: Fix this. Currently, we only check for PORTAL blocks. I'll have to figure out what
+     //         // TODO: we want to do here.
+     //         if (newloc != null) {
+     //             event.setFrom(newloc);
+     //         }
+     //     }
+     //     // Wait for the adjust, then return!
+     //     if (event.getTo() == null) {
+     //         return;
+     //     }
+     // }
 
-        // REMEMBER! getTo MAY be NULL HERE!!!
-        // If the player was actually outside of the portal, adjust the from location
-        if (event.getFrom().getWorld().getBlockAt(event.getFrom()).getType() != Material.NETHER_PORTAL) {
-            Location newloc = this.plugin.getSafeTTeleporter().findPortalBlockNextTo(event.getFrom());
-            // TODO: Fix this. Currently, we only check for PORTAL blocks. I'll have to figure out what
-            // TODO: we want to do here.
-            if (newloc != null) {
-                event.setFrom(newloc);
-            }
-        }
-        // Wait for the adjust, then return!
-        if (event.getTo() == null) {
-            return;
-        }
-    }
-    /**
-     * This method is called when a player actually portals via a vanilla style portal.
-     * @param event The Event that was fired.
-     */
-    @EventHandler(priority = EventPriority.HIGH)
-    public void playerPortal(PlayerPortalEvent event) {
-        if (event.isCancelled() || (event.getFrom() == null)) {
-            return;
-        }
-        // The adjust should have happened much earlier.
-        if (event.getTo() == null) {
-            return;
-        }
-        MultiverseWorld fromWorld = this.worldManager.getMVWorld(event.getFrom().getWorld().getName());
-        MultiverseWorld toWorld = this.worldManager.getMVWorld(event.getTo().getWorld().getName());
-        if (event.getFrom().getWorld().equals(event.getTo().getWorld())) {
-            // The player is Portaling to the same world.
-            Logging.finer("Player '" + event.getPlayer().getName() + "' is portaling to the same world.");
-            return;
-        }
-        event.setCancelled(!pt.playerHasMoneyToEnter(fromWorld, toWorld, event.getPlayer(), event.getPlayer(), true));
-        if (event.isCancelled()) {
-            Logging.fine("Player '" + event.getPlayer().getName()
-                    + "' was DENIED ACCESS to '" + event.getTo().getWorld().getName()
-                    + "' because they don't have the FUNDS required to enter.");
-            return;
-        }
-        if (plugin.getMVConfig().getEnforceAccess()) {
-            event.setCancelled(!pt.playerCanGoFromTo(fromWorld, toWorld, event.getPlayer(), event.getPlayer()));
-            if (event.isCancelled()) {
-                Logging.fine("Player '" + event.getPlayer().getName()
-                        + "' was DENIED ACCESS to '" + event.getTo().getWorld().getName()
-                        + "' because they don't have: multiverse.access." + event.getTo().getWorld().getName());
-            }
-        } else {
-            Logging.fine("Player '" + event.getPlayer().getName()
-                    + "' was allowed to go to '" + event.getTo().getWorld().getName()
-                    + "' because enforceaccess is off.");
-        }
-        if (!this.plugin.getMVConfig().isUsingDefaultPortalSearch()) {
-            CompatibilityLayer.setPortalSearchRadius(event, this.plugin.getMVConfig().getPortalSearchRadius());
-        }
-    }
+    // /**
+    //  * This method is called when a player actually portals via a vanilla style portal.
+    //  * @param event The Event that was fired.
+    //  */
+    // @EventHandler(priority = EventPriority.HIGH)
+    // public void playerPortal(PlayerPortalEvent event) {
+    //     if (event.isCancelled() || (event.getFrom() == null)) {
+    //         return;
+    //     }
+    //     // The adjust should have happened much earlier.
+    //     if (event.getTo() == null) {
+    //         return;
+    //     }
+    //     MultiverseWorld fromWorld = this.worldManager.getMVWorld(event.getFrom().getWorld().getName());
+    //     MultiverseWorld toWorld = this.worldManager.getMVWorld(event.getTo().getWorld().getName());
+    //     if (event.getFrom().getWorld().equals(event.getTo().getWorld())) {
+    //         // The player is Portaling to the same world.
+    //         Logging.finer("Player '" + event.getPlayer().getName() + "' is portaling to the same world.");
+    //         return;
+    //     }
+    //     event.setCancelled(!pt.playerHasMoneyToEnter(fromWorld, toWorld, event.getPlayer(), event.getPlayer(), true));
+    //     if (event.isCancelled()) {
+    //         Logging.fine("Player '" + event.getPlayer().getName()
+    //                 + "' was DENIED ACCESS to '" + event.getTo().getWorld().getName()
+    //                 + "' because they don't have the FUNDS required to enter.");
+    //         return;
+    //     }
+    //     if (plugin.getMVConfig().getEnforceAccess()) {
+    //         event.setCancelled(!pt.playerCanGoFromTo(fromWorld, toWorld, event.getPlayer(), event.getPlayer()));
+    //         if (event.isCancelled()) {
+    //             Logging.fine("Player '" + event.getPlayer().getName()
+    //                     + "' was DENIED ACCESS to '" + event.getTo().getWorld().getName()
+    //                     + "' because they don't have: multiverse.access." + event.getTo().getWorld().getName());
+    //         }
+    //     } else {
+    //         Logging.fine("Player '" + event.getPlayer().getName()
+    //                 + "' was allowed to go to '" + event.getTo().getWorld().getName()
+    //                 + "' because enforceaccess is off.");
+    //     }
+    //     if (!this.plugin.getMVConfig().isUsingDefaultPortalSearch()) {
+    //         CompatibilityLayer.setPortalSearchRadius(event, this.plugin.getMVConfig().getPortalSearchRadius());
+    //     }
+    // }
 
     private void sendPlayerToDefaultWorld(final Player player) {
-        // Remove the player 1 tick after the login. I'm sure there's GOT to be a better way to do this...
-        this.plugin.getServer().getScheduler().scheduleSyncDelayedTask(this.plugin,
-            new Runnable() {
-                @Override
-                public void run() {
-                    player.teleport(plugin.getMVWorldManager().getFirstSpawnWorld().getSpawnLocation());
-                }
-            }, 1L);
+        plugin.getMorePaperLib().scheduling().entitySpecificScheduler(player).runDelayed(() -> {
+            plugin.getTeleportUtil().teleport(player, plugin.getMVWorldManager().getFirstSpawnWorld().getSpawnLocation());
+        },null,1L);
     }
 
     // FOLLOWING 2 Methods and Private class handle Per Player GameModes.
@@ -348,7 +344,7 @@ public class MVPlayerListener implements Listener {
     public void handleGameModeAndFlight(final Player player, final MultiverseWorld world) {
         // We perform this task one tick later to MAKE SURE that the player actually reaches the
         // destination world, otherwise we'd be changing the player mode if they havent moved anywhere.
-        this.plugin.getServer().getScheduler().scheduleSyncDelayedTask(this.plugin,
+        plugin.getMorePaperLib().scheduling().globalRegionalScheduler().runDelayed(
                 new Runnable() {
                     @Override
                     public void run() {

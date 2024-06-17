@@ -109,17 +109,17 @@ public class MVEntityListener implements Listener {
         event.setCancelled(this.plugin.getMVWorldManager().getTheWorldPurger().shouldWeKillThisCreature(mvworld, event.getEntity()));
     }
 
-    /**
-     * Handles portal search radius adjustment.
-     * @param event The Event that was fired.
-     */
-    @EventHandler
-    public void entityPortal(EntityPortalEvent event) {
-        if (event.isCancelled() || event.getTo() == null) {
-            return;
-        }
-        if (!this.plugin.getMVConfig().isUsingDefaultPortalSearch()) {
-            CompatibilityLayer.setPortalSearchRadius(event, this.plugin.getMVConfig().getPortalSearchRadius());
-        }
-    }
+    // /**
+    //  * Handles portal search radius adjustment.
+    //  * @param event The Event that was fired.
+    //  */
+    // @EventHandler
+    // public void entityPortal(EntityPortalEvent event) {
+    //     if (event.isCancelled() || event.getTo() == null) {
+    //         return;
+    //     }
+    //     if (!this.plugin.getMVConfig().isUsingDefaultPortalSearch()) {
+    //         CompatibilityLayer.setPortalSearchRadius(event, this.plugin.getMVConfig().getPortalSearchRadius());
+    //     }
+    // }
 }

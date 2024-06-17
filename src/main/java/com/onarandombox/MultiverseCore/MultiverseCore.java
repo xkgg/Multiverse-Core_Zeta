@@ -88,24 +88,13 @@ import com.onarandombox.MultiverseCore.listeners.MVPortalListener;
 import com.onarandombox.MultiverseCore.listeners.MVWeatherListener;
 import com.onarandombox.MultiverseCore.listeners.MVWorldInitListener;
 import com.onarandombox.MultiverseCore.listeners.MVWorldListener;
-import com.onarandombox.MultiverseCore.utils.AnchorManager;
-import com.onarandombox.MultiverseCore.utils.CompatibilityLayer;
-import com.onarandombox.MultiverseCore.utils.MVEconomist;
-import com.onarandombox.MultiverseCore.utils.MVMessaging;
-import com.onarandombox.MultiverseCore.utils.MVPermissions;
-import com.onarandombox.MultiverseCore.utils.MVPlayerSession;
-import com.onarandombox.MultiverseCore.utils.MaterialConverter;
-import com.onarandombox.MultiverseCore.utils.TestingMode;
+import com.onarandombox.MultiverseCore.utils.*;
 import com.onarandombox.MultiverseCore.utils.metrics.MetricsConfigurator;
-import com.onarandombox.MultiverseCore.utils.SimpleBlockSafety;
-import com.onarandombox.MultiverseCore.utils.SimpleLocationManipulation;
-import com.onarandombox.MultiverseCore.utils.SimpleSafeTTeleporter;
-import com.onarandombox.MultiverseCore.utils.UnsafeCallWrapper;
-import com.onarandombox.MultiverseCore.utils.VaultHandler;
-import com.onarandombox.MultiverseCore.utils.WorldManager;
 import com.pneumaticraft.commandhandler.CommandHandler;
+import i.mrhua269.zutils.api.ZAPIEntryPoint;
 import me.main__.util.SerializationConfig.NoSuchPropertyException;
 import me.main__.util.SerializationConfig.SerializationConfig;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Difficulty;
 import org.bukkit.GameMode;
@@ -122,6 +111,7 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.JavaPluginLoader;
+import space.arim.morepaperlib.MorePaperLib;
 
 /**
  * The implementation of the Multiverse-{@link Core}.
@@ -239,6 +229,9 @@ public class MultiverseCore extends JavaPlugin implements MVPlugin, Core {
 
     private File serverFolder = new File(System.getProperty("user.dir"));
 
+    private final MorePaperLib morePaperLib = new MorePaperLib(this);
+    private final TeleportUtil teleportUtil = new TeleportUtil(this);
+
     @Override
     public void onLoad() {
         // Register our config
@@ -307,10 +300,13 @@ public class MultiverseCore extends JavaPlugin implements MVPlugin, Core {
         // this function will be called every time a plugin registers a new envtype with MV
         // Setup & Load our Configuration files.
         loadConfigs();
+        ZAPIEntryPoint.init();
         if (this.multiverseConfig != null) {
             Logging.setShowingConfig(!getMVConfig().getSilentStart());
-            this.worldManager.loadDefaultWorlds();
-            this.worldManager.loadWorlds(true);
+            morePaperLib.scheduling().globalRegionalScheduler().run(() -> {
+                this.worldManager.loadDefaultWorlds();
+                this.worldManager.loadWorlds(true);
+            });
         } else {
             Logging.severe("Your configs were not loaded. Very little will function in Multiverse.");
         }
@@ -1234,5 +1230,13 @@ public class MultiverseCore extends JavaPlugin implements MVPlugin, Core {
 
     public UnsafeCallWrapper getUnsafeCallWrapper() {
         return this.unsafeCallWrapper;
+    }
+
+    public MorePaperLib getMorePaperLib() {
+        return this.morePaperLib;
+    }
+
+    public TeleportUtil getTeleportUtil() {
+        return this.teleportUtil;
     }
 }

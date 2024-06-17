@@ -20,6 +20,7 @@ import com.onarandombox.MultiverseCore.exceptions.PropertyDoesNotExistException;
 import me.main__.util.SerializationConfig.ChangeDeniedException;
 import me.main__.util.SerializationConfig.NoSuchPropertyException;
 import me.main__.util.SerializationConfig.VirtualProperty;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Difficulty;
 import org.bukkit.GameMode;
@@ -28,6 +29,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.WorldType;
+import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.entity.Player;
@@ -41,6 +43,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
 /**
@@ -79,9 +85,17 @@ public class MVWorld implements MultiverseWorld {
         this.props.setValidator("spawn", spawnValidator);
         this.props.spawnLocation.setWorld(world);
         if (this.props.spawnLocation instanceof NullLocation) {
-            final SpawnLocation newLoc = new SpawnLocation(readSpawnFromWorld(world));
-            this.props.spawnLocation = newLoc;
-            world.setSpawnLocation(newLoc.getBlockX(), newLoc.getBlockY(), newLoc.getBlockZ());
+            this.props.spawnLocation = new SpawnLocation(world.getSpawnLocation());
+
+            // It's difficult to implement safe spawn location at folia.
+            // Actually, I think implement it is possible, but is unnecessary to me.
+            // TODO: Safe spawn location
+
+            // plugin.getMorePaperLib().scheduling().asyncScheduler().run(() -> {
+            //     final SpawnLocation newLoc = new SpawnLocation(readSpawnFromWorld(world));
+            //     this.props.spawnLocation = newLoc;
+            //     world.setSpawnLocation(newLoc.getBlockX(), newLoc.getBlockY(), newLoc.getBlockZ());
+            // });
         }
 
         this.props.environment = world.getEnvironment();

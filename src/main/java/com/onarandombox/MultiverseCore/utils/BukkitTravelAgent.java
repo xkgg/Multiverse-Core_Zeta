@@ -104,8 +104,8 @@ public class BukkitTravelAgent implements TravelAgent {
 
     }
 
-    public void setPortalEventTravelAgent(PlayerPortalEvent event) {
-        event.setPortalTravelAgent(this);
-        event.useTravelAgent(true);
-    }
+    // public void setPortalEventTravelAgent(PlayerPortalEvent event) {
+    //     event.setPortalTravelAgent(this);
+    //     event.useTravelAgent(true);
+    // }
 }
