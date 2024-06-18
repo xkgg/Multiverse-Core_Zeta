@@ -20,6 +20,7 @@ import com.onarandombox.MultiverseCore.enums.TeleportResult;
 import com.onarandombox.MultiverseCore.event.MVTeleportEvent;
 import com.onarandombox.MultiverseCore.api.SafeTTeleporter;
 import com.onarandombox.MultiverseCore.utils.PlayerFinder;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -30,6 +31,7 @@ import org.bukkit.permissions.PermissionDefault;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Used to teleport players.
@@ -149,24 +151,28 @@ public class TeleportCommand extends MultiverseCommand {
         }
         Teleporter teleportObject = (d instanceof CustomTeleporterDestination) ?
                 ((CustomTeleporterDestination)d).getTeleporter() : this.playerTeleporter;
-        TeleportResult result = teleportObject.teleport(teleporter, teleportee, d);
-        if (result == TeleportResult.FAIL_UNSAFE) {
-            Logging.fine("Could not teleport " + teleportee.getName()
-                    + " to " + plugin.getLocationManipulation().strCoordsRaw(d.getLocation(teleportee)));
+        CompletableFuture<TeleportResult> completableFutureResult = teleportObject.teleport(teleporter, teleportee, d);
+        Player finalTeleportee = teleportee;
+        completableFutureResult.whenComplete((result, throwable) -> {
+            if (result == TeleportResult.FAIL_UNSAFE) {
+                Logging.fine("Could not teleport " + finalTeleportee.getName()
+                             + " to " + plugin.getLocationManipulation().strCoordsRaw(d.getLocation(finalTeleportee)));
 
-            String player = "you";
-            if (!teleportee.equals(teleporter)) {
-                player = teleportee.getName();
+                String player = "you";
+                if (!finalTeleportee.equals(teleporter)) {
+                    player = finalTeleportee.getName();
+                }
+
+                this.plugin.getCommandQueueManager().addToQueue(new QueuedCommand(
+                        sender,
+                        doUnsafeTeleport(teleporter, finalTeleportee, d.getLocation(finalTeleportee)),
+                        String.format("%sMultiverse %sdid not teleport %s%s %sto %s%s %sbecause it was unsafe. Would you like to try anyway?",
+                                ChatColor.GREEN, ChatColor.WHITE, ChatColor.AQUA, player, ChatColor.WHITE, ChatColor.DARK_AQUA, d.getName(), ChatColor.WHITE),
+                        UNSAFE_TELEPORT_EXPIRE_DELAY
+                ));
             }
+        });
 
-            this.plugin.getCommandQueueManager().addToQueue(new QueuedCommand(
-                    sender,
-                    doUnsafeTeleport(teleporter, teleportee, d.getLocation(teleportee)),
-                    String.format("%sMultiverse %sdid not teleport %s%s %sto %s%s %sbecause it was unsafe. Would you like to try anyway?",
-                            ChatColor.GREEN, ChatColor.WHITE, ChatColor.AQUA, player, ChatColor.WHITE, ChatColor.DARK_AQUA, d.getName(), ChatColor.WHITE),
-                    UNSAFE_TELEPORT_EXPIRE_DELAY
-            ));
-        }
         // else: Player was teleported successfully (or the tp event was fired I should say)
     }
 

@@ -1,5 +1,6 @@
 package com.onarandombox.MultiverseCore.utils;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 import com.dumptruckman.minecraft.util.Logging;
@@ -68,7 +69,8 @@ public class BukkitTravelAgent implements TravelAgent {
      */
     @Override
     public Location findOrCreate(Location location) {
-        return this.getSafeLocation();
+        return location;
+        // return this.getSafeLocation();
     }
 
     /**
@@ -76,7 +78,8 @@ public class BukkitTravelAgent implements TravelAgent {
      */
     @Override
     public Location findPortal(Location location) {
-        return this.getSafeLocation();
+        return location;
+        // return this.getSafeLocation();
     }
 
     /**
@@ -87,20 +90,32 @@ public class BukkitTravelAgent implements TravelAgent {
         return false;
     }
 
-    private Location getSafeLocation() {
+    private CompletableFuture<Location> getSafeLocation() {
+
+        CompletableFuture<Location> futureLocation = new CompletableFuture<>();
+
         // At this time, these can never use the velocity.
         if (agent.destination instanceof CannonDestination) {
             Logging.fine("Using Stock TP method. This cannon will have 0 velocity");
         }
         SafeTTeleporter teleporter = agent.core.getSafeTTeleporter();
         Location newLoc = agent.destination.getLocation(agent.player);
-        if (agent.destination.useSafeTeleporter()) {
-            newLoc = teleporter.getSafeLocation(agent.player, agent.destination);
+
+        if (!agent.destination.useSafeTeleporter()) {
+            futureLocation.complete(newLoc);
+            return futureLocation;
         }
-        if (newLoc == null) {
-            return agent.player.getLocation();
-        }
-        return newLoc;
+
+        teleporter.getSafeLocation(agent.player, agent.destination).whenComplete((location, throwable) -> {
+            if (location == null) {
+                futureLocation.complete(agent.player.getLocation());
+                return;
+            }
+
+            futureLocation.complete(location);
+        });
+
+        return futureLocation;
 
     }
 

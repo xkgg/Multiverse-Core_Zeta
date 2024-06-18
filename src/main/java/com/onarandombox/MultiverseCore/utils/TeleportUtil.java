@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.concurrent.CompletableFuture;
 
 public class TeleportUtil {
 
@@ -27,18 +28,21 @@ public class TeleportUtil {
     }
 
 
-    public void teleport(Entity entity, Location location) {
+    public CompletableFuture<Boolean> teleport(Entity entity, Location location) {
+
         if (!isFolia) {
-            entity.teleport(location);
-            return;
+            CompletableFuture<Boolean> result = new CompletableFuture<>();
+            result.complete(entity.teleport(location));
+            return result;
         }
 
-        plugin.getMorePaperLib().scheduling().entitySpecificScheduler(entity).run(() -> {
-            try {
-                teleportAsync.invoke(entity, location);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-        }, null);
+        try {
+            @SuppressWarnings("unchecked")
+            CompletableFuture<Boolean> result = (CompletableFuture<Boolean>) teleportAsync.invoke(entity, location);
+            return result;
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }

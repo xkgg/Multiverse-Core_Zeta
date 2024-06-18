@@ -5,6 +5,8 @@ import com.onarandombox.MultiverseCore.enums.TeleportResult;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.concurrent.CompletableFuture;
+
 public interface Teleporter {
-    TeleportResult teleport(CommandSender teleporter, Player teleportee, MVDestination destination);
+    CompletableFuture<TeleportResult> teleport(CommandSender teleporter, Player teleportee, MVDestination destination);
 }

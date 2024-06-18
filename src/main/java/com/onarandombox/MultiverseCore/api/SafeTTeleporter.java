@@ -6,6 +6,8 @@ import org.bukkit.entity.Entity;
 
 import com.onarandombox.MultiverseCore.enums.TeleportResult;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
  * Used to safely teleport people.
  */
@@ -36,7 +38,7 @@ public interface SafeTTeleporter extends Teleporter {
      * @param d          Destination to teleport them to
      * @return true for success, false for failure
      */
-    TeleportResult safelyTeleport(CommandSender teleporter, Entity teleportee, MVDestination d);
+    CompletableFuture<TeleportResult> safelyTeleport(CommandSender teleporter, Entity teleportee, MVDestination d);
 
     /**
      * Safely teleport the entity to the Location. This may perform checks to
@@ -59,7 +61,7 @@ public interface SafeTTeleporter extends Teleporter {
      * @param d The MVDestination to take the entity to.
      * @return A new location to spawn the entity at.
      */
-    Location getSafeLocation(Entity e, MVDestination d);
+    CompletableFuture<Location> getSafeLocation(Entity e, MVDestination d);
 
     /**
      * Finds a portal-block next to the specified {@link Location}.
