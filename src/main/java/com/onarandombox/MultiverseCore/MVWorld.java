@@ -87,15 +87,15 @@ public class MVWorld implements MultiverseWorld {
         if (this.props.spawnLocation instanceof NullLocation) {
             this.props.spawnLocation = new SpawnLocation(world.getSpawnLocation());
 
-            // It's difficult to implement safe spawn location at folia.
-            // Actually, I think implement it is possible, but is unnecessary to me.
-            // TODO: Safe spawn location
+            readSpawnFromWorld(world).whenComplete((location, throwable) -> {
+                final SpawnLocation newLoc = new SpawnLocation(location);
+                this.props.spawnLocation = newLoc;
+                plugin.getMorePaperLib().scheduling().globalRegionalScheduler().run(() -> {
+                    world.setSpawnLocation(newLoc.getBlockX(), newLoc.getBlockY(), newLoc.getBlockZ());
+                });
+            });
 
-            // plugin.getMorePaperLib().scheduling().asyncScheduler().run(() -> {
-            //     final SpawnLocation newLoc = new SpawnLocation(readSpawnFromWorld(world));
-            //     this.props.spawnLocation = newLoc;
-            //     world.setSpawnLocation(newLoc.getBlockX(), newLoc.getBlockY(), newLoc.getBlockZ());
-            // });
+
         }
 
         this.props.environment = world.getEnvironment();
@@ -429,46 +429,56 @@ public class MVWorld implements MultiverseWorld {
         }
     }
 
-    private Location readSpawnFromWorld(World w) {
+    private CompletableFuture<Location> readSpawnFromWorld(World w) {
+        CompletableFuture<Location> futureLocation = new CompletableFuture<>();
         Location location = w.getSpawnLocation();
         // Set the worldspawn to our configspawn
         BlockSafety bs = this.plugin.getBlockSafety();
+
         // Verify that location was safe
-        if (!bs.playerCanSpawnHereSafely(location)) {
-            if (!this.getAdjustSpawn()) {
-                Logging.fine("Spawn location from world.dat file was unsafe!!");
-                Logging.fine("NOT adjusting spawn for '" + this.getAlias() + "' because you told me not to.");
-                Logging.fine("To turn on spawn adjustment for this world simply type:");
-                Logging.fine("/mvm set adjustspawn true " + this.getAlias());
-                return location;
-            }
-            // If it's not, find a better one.
-            SafeTTeleporter teleporter = this.plugin.getSafeTTeleporter();
-            Logging.warning("Spawn location from world.dat file was unsafe. Adjusting...");
-            Logging.warning("Original Location: " + plugin.getLocationManipulation().strCoordsRaw(location));
-            Location newSpawn = teleporter.getSafeLocation(location,
-                    SPAWN_LOCATION_SEARCH_TOLERANCE, SPAWN_LOCATION_SEARCH_RADIUS);
-            // I think we could also do this, as I think this is what Notch does.
-            // Not sure how it will work in the nether...
-            //Location newSpawn = this.spawnLocation.getWorld().getHighestBlockAt(this.spawnLocation).getLocation();
-            if (newSpawn != null) {
-                Logging.info("New Spawn for '%s' is located at: %s",
-                        this.getName(), plugin.getLocationManipulation().locationToString(newSpawn));
-                return newSpawn;
-            } else {
-                // If it's a standard end world, let's check in a better place:
-                Location newerSpawn;
-                newerSpawn = bs.getTopBlock(new Location(w, 0, 0, 0));
-                if (newerSpawn != null) {
+        plugin.getMorePaperLib().scheduling().regionSpecificScheduler(location).run(() -> {
+            if (!bs.playerCanSpawnHereSafely(location)) {
+                if (!this.getAdjustSpawn()) {
+                    Logging.fine("Spawn location from world.dat file was unsafe!!");
+                    Logging.fine("NOT adjusting spawn for '" + this.getAlias() + "' because you told me not to.");
+                    Logging.fine("To turn on spawn adjustment for this world simply type:");
+                    Logging.fine("/mvm set adjustspawn true " + this.getAlias());
+                    futureLocation.complete(location);
+                    return;
+                }
+                // If it's not, find a better one.
+                SafeTTeleporter teleporter = this.plugin.getSafeTTeleporter();
+                Logging.warning("Spawn location from world.dat file was unsafe. Adjusting...");
+                Logging.warning("Original Location: " + plugin.getLocationManipulation().strCoordsRaw(location));
+                Location newSpawn = teleporter.getSafeLocation(location,
+                        SPAWN_LOCATION_SEARCH_TOLERANCE, SPAWN_LOCATION_SEARCH_RADIUS);
+                // I think we could also do this, as I think this is what Notch does.
+                // Not sure how it will work in the nether...
+                //Location newSpawn = this.spawnLocation.getWorld().getHighestBlockAt(this.spawnLocation).getLocation();
+                if (newSpawn != null) {
                     Logging.info("New Spawn for '%s' is located at: %s",
-                            this.getName(), plugin.getLocationManipulation().locationToString(newerSpawn));
-                    return newerSpawn;
+                            this.getName(), plugin.getLocationManipulation().locationToString(newSpawn));
+                    futureLocation.complete(newSpawn);
+                    return;
                 } else {
-                    Logging.severe("Safe spawn NOT found!!!");
+                    // If it's a standard end world, let's check in a better place:
+                    Location newerSpawn;
+                    newerSpawn = bs.getTopBlock(new Location(w, 0, 0, 0));
+                    if (newerSpawn != null) {
+                        Logging.info("New Spawn for '%s' is located at: %s",
+                                this.getName(), plugin.getLocationManipulation().locationToString(newerSpawn));
+                        futureLocation.complete(newerSpawn);
+                        return;
+                    } else {
+                        Logging.severe("Safe spawn NOT found!!!");
+                    }
                 }
             }
-        }
-        return location;
+
+            futureLocation.complete(location);
+        });
+
+        return futureLocation;
     }
 
     private void addToUpperLists(Permission perm) {
