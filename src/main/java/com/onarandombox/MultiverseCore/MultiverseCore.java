@@ -92,6 +92,7 @@ import com.onarandombox.MultiverseCore.utils.*;
 import com.onarandombox.MultiverseCore.utils.metrics.MetricsConfigurator;
 import com.pneumaticraft.commandhandler.CommandHandler;
 import i.mrhua269.zutils.api.ZAPIEntryPoint;
+import i.mrhua269.zutils.shared.Utils;
 import me.main__.util.SerializationConfig.NoSuchPropertyException;
 import me.main__.util.SerializationConfig.SerializationConfig;
 import org.bukkit.Bukkit;
@@ -270,6 +271,14 @@ public class MultiverseCore extends JavaPlugin implements MVPlugin, Core {
      */
     @Override
     public void onEnable() {
+        try {
+            Class.forName("i.mrhua269.zutils.nms" + Utils.getServerNMSVersion() + "FoliaWorldManagerImpl");
+        } catch (Exception e){
+            Bukkit.getLogger().severe("Multiverse-Core Zeta does not support your minecraft version!");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+
         getServer().getPluginManager().registerEvents(new MVWorldInitListener(this), this);
 
         this.messaging = new MVMessaging();
