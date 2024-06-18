@@ -272,7 +272,7 @@ public class MultiverseCore extends JavaPlugin implements MVPlugin, Core {
     @Override
     public void onEnable() {
         try {
-            Class.forName("i.mrhua269.zutils.nms" + Utils.getServerNMSVersion() + "FoliaWorldManagerImpl");
+            Class.forName("i.mrhua269.zutils.nms." + Utils.getServerNMSVersion() + ".impl.FoliaWorldManagerImpl");
         } catch (Exception e){
             Bukkit.getLogger().severe("Multiverse-Core Zeta does not support your minecraft version!");
             getServer().getPluginManager().disablePlugin(this);
