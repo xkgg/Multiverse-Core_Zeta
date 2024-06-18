@@ -588,7 +588,7 @@ public class WorldManager implements MVWorldManager {
      */
     private boolean unloadWorldFromBukkit(String name, boolean safely) {
         this.removePlayersFromWorld(name);
-        return this.plugin.getServer().unloadWorld(name, safely);
+        return ZAPIEntryPoint.getWorldManager().unloadWorld(name, safely);
     }
 
     /**

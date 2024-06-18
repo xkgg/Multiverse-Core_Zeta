@@ -52,17 +52,20 @@ public class SimpleSafeTTeleporter implements SafeTTeleporter {
      */
     @Override
     public Location getSafeLocation(Location l, int tolerance, int radius) {
-        // Check around the player first in a configurable radius:
-        // TODO: Make this configurable
-        Location safe = checkAboveAndBelowLocation(l, tolerance, radius);
-        if (safe != null) {
-            safe.setX(safe.getBlockX() + .5); // SUPPRESS CHECKSTYLE: MagicNumberCheck
-            safe.setZ(safe.getBlockZ() + .5); // SUPPRESS CHECKSTYLE: MagicNumberCheck
-            Logging.fine("Hey! I found one: " + plugin.getLocationManipulation().strCoordsRaw(safe));
-        } else {
-            Logging.fine("Uh oh! No safe place found!");
-        }
-        return safe;
+        return l;
+
+        // TODO: Safe teleport
+        // // Check around the player first in a configurable radius:
+        // // TODO: Make this configurable
+        // Location safe = checkAboveAndBelowLocation(l, tolerance, radius);
+        // if (safe != null) {
+        //     safe.setX(safe.getBlockX() + .5); // SUPPRESS CHECKSTYLE: MagicNumberCheck
+        //     safe.setZ(safe.getBlockZ() + .5); // SUPPRESS CHECKSTYLE: MagicNumberCheck
+        //     Logging.fine("Hey! I found one: " + plugin.getLocationManipulation().strCoordsRaw(safe));
+        // } else {
+        //     Logging.fine("Uh oh! No safe place found!");
+        // }
+        // return safe;
     }
 
     private Location checkAboveAndBelowLocation(Location l, int tolerance, int radius) {
@@ -211,19 +214,23 @@ public class SimpleSafeTTeleporter implements SafeTTeleporter {
             safeLoc = this.getSafeLocation(teleportee, d);
         }
 
-        if (safeLoc != null) {
-            if (teleportee.teleport(safeLoc)) {
-                Vector v = d.getVelocity();
-                if (v != null && !DEFAULT_VECTOR.equals(v)) {
-                    plugin.getMorePaperLib().scheduling().globalRegionalScheduler().runDelayed(() -> {
-                        teleportee.setVelocity(d.getVelocity());
-                    }, 1);
-                }
-                return TeleportResult.SUCCESS;
-            }
-            return TeleportResult.FAIL_OTHER;
-        }
-        return TeleportResult.FAIL_UNSAFE;
+        plugin.getTeleportUtil().teleport(teleportee, safeLoc);
+        return TeleportResult.SUCCESS;
+
+        // TODO: Safe teleport
+        // if (safeLoc != null) {
+        //     if (teleportee.teleport(safeLoc)) {
+        //         Vector v = d.getVelocity();
+        //         if (v != null && !DEFAULT_VECTOR.equals(v)) {
+        //             plugin.getMorePaperLib().scheduling().globalRegionalScheduler().runDelayed(() -> {
+        //                 teleportee.setVelocity(d.getVelocity());
+        //             }, 1);
+        //         }
+        //         return TeleportResult.SUCCESS;
+        //     }
+        //     return TeleportResult.FAIL_OTHER;
+        // }
+        // return TeleportResult.FAIL_UNSAFE;
     }
 
     /**
@@ -235,13 +242,17 @@ public class SimpleSafeTTeleporter implements SafeTTeleporter {
             location = this.getSafeLocation(location);
         }
 
-        if (location != null) {
-            if (teleportee.teleport(location)) {
-                return TeleportResult.SUCCESS;
-            }
-            return TeleportResult.FAIL_OTHER;
-        }
-        return TeleportResult.FAIL_UNSAFE;
+        plugin.getTeleportUtil().teleport(teleportee, location);
+        return TeleportResult.SUCCESS;
+
+        // TODO: Safe teleport
+        // if (location != null) {
+        //     if (teleportee.teleport(location)) {
+        //         return TeleportResult.SUCCESS;
+        //     }
+        //     return TeleportResult.FAIL_OTHER;
+        // }
+        // return TeleportResult.FAIL_UNSAFE;
     }
 
     /**
@@ -249,43 +260,46 @@ public class SimpleSafeTTeleporter implements SafeTTeleporter {
      */
     @Override
     public Location getSafeLocation(Entity e, MVDestination d) {
-        Location l = d.getLocation(e);
-        if (plugin.getBlockSafety().playerCanSpawnHereSafely(l)) {
-            Logging.fine("The first location you gave me was safe.");
-            return l;
-        }
-        if (e instanceof Minecart) {
-            Minecart m = (Minecart) e;
-            if (!plugin.getBlockSafety().canSpawnCartSafely(m)) {
-                return null;
-            }
-        } else if (e instanceof Vehicle) {
-            Vehicle v = (Vehicle) e;
-            if (!plugin.getBlockSafety().canSpawnVehicleSafely(v)) {
-                return null;
-            }
-        }
-        Location safeLocation = this.getSafeLocation(l);
-        if (safeLocation != null) {
-            // Add offset to account for a vehicle on dry land!
-            if (e instanceof Minecart && !plugin.getBlockSafety().isEntitiyOnTrack(safeLocation)) {
-                safeLocation.setY(safeLocation.getBlockY() + .5);
-                Logging.finer("Player was inside a minecart. Offsetting Y location.");
-            }
-            Logging.finer("Had to look for a bit, but I found a safe place for ya!");
-            return safeLocation;
-        }
-        if (e instanceof Player) {
-            Player p = (Player) e;
-            this.plugin.getMessaging().sendMessage(p, "No safe locations found!", false);
-            Logging.finer("No safe location found for " + p.getName());
-        } else if (e.getPassenger() instanceof Player) {
-            Player p = (Player) e.getPassenger();
-            this.plugin.getMessaging().sendMessage(p, "No safe locations found!", false);
-            Logging.finer("No safe location found for " + p.getName());
-        }
-        Logging.fine("Sorry champ, you're basically trying to teleport into a minefield. I should just kill you now.");
-        return null;
+        return d.getLocation(e);
+
+        // TODO: Safe teleport
+        // Location l = d.getLocation(e);
+        // if (plugin.getBlockSafety().playerCanSpawnHereSafely(l)) {
+        //     Logging.fine("The first location you gave me was safe.");
+        //     return l;
+        // }
+        // if (e instanceof Minecart) {
+        //     Minecart m = (Minecart) e;
+        //     if (!plugin.getBlockSafety().canSpawnCartSafely(m)) {
+        //         return null;
+        //     }
+        // } else if (e instanceof Vehicle) {
+        //     Vehicle v = (Vehicle) e;
+        //     if (!plugin.getBlockSafety().canSpawnVehicleSafely(v)) {
+        //         return null;
+        //     }
+        // }
+        // Location safeLocation = this.getSafeLocation(l);
+        // if (safeLocation != null) {
+        //     // Add offset to account for a vehicle on dry land!
+        //     if (e instanceof Minecart && !plugin.getBlockSafety().isEntitiyOnTrack(safeLocation)) {
+        //         safeLocation.setY(safeLocation.getBlockY() + .5);
+        //         Logging.finer("Player was inside a minecart. Offsetting Y location.");
+        //     }
+        //     Logging.finer("Had to look for a bit, but I found a safe place for ya!");
+        //     return safeLocation;
+        // }
+        // if (e instanceof Player) {
+        //     Player p = (Player) e;
+        //     this.plugin.getMessaging().sendMessage(p, "No safe locations found!", false);
+        //     Logging.finer("No safe location found for " + p.getName());
+        // } else if (e.getPassenger() instanceof Player) {
+        //     Player p = (Player) e.getPassenger();
+        //     this.plugin.getMessaging().sendMessage(p, "No safe locations found!", false);
+        //     Logging.finer("No safe location found for " + p.getName());
+        // }
+        // Logging.fine("Sorry champ, you're basically trying to teleport into a minefield. I should just kill you now.");
+        // return null;
     }
 
     /**

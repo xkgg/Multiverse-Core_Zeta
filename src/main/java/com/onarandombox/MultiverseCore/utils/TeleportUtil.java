@@ -2,6 +2,7 @@ package com.onarandombox.MultiverseCore.utils;
 
 import com.onarandombox.MultiverseCore.MultiverseCore;
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.InvocationTargetException;
@@ -18,7 +19,7 @@ public class TeleportUtil {
         this.isFolia = plugin.getMorePaperLib().scheduling().isUsingFolia();
         if (isFolia) {
             try {
-                teleportAsync = Player.class.getMethod("teleportAsync", Location.class);
+                teleportAsync = Entity.class.getMethod("teleportAsync", Location.class);
             } catch (NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
@@ -26,15 +27,15 @@ public class TeleportUtil {
     }
 
 
-    public void teleport(Player player, Location location) {
+    public void teleport(Entity entity, Location location) {
         if (!isFolia) {
-            player.teleport(location);
+            entity.teleport(location);
             return;
         }
 
-        plugin.getMorePaperLib().scheduling().entitySpecificScheduler(player).run(() -> {
+        plugin.getMorePaperLib().scheduling().entitySpecificScheduler(entity).run(() -> {
             try {
-                teleportAsync.invoke(player, location);
+                teleportAsync.invoke(entity, location);
             } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
