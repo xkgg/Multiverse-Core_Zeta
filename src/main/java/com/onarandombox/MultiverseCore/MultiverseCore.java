@@ -303,10 +303,8 @@ public class MultiverseCore extends JavaPlugin implements MVPlugin, Core {
         ZAPIEntryPoint.init();
         if (this.multiverseConfig != null) {
             Logging.setShowingConfig(!getMVConfig().getSilentStart());
-            morePaperLib.scheduling().globalRegionalScheduler().run(() -> {
-                this.worldManager.loadDefaultWorlds();
-                this.worldManager.loadWorlds(true);
-            });
+            this.worldManager.loadDefaultWorlds();
+            this.worldManager.loadWorlds(true);
         } else {
             Logging.severe("Your configs were not loaded. Very little will function in Multiverse.");
         }

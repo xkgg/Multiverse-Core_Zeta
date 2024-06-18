@@ -709,18 +709,20 @@ public class WorldManager implements MVWorldManager {
      */
     @Override
     public void loadDefaultWorlds() {
-        this.ensureConfigIsPrepared();
-        List<World> myWorlds = this.plugin.getServer().getWorlds();
-        for (World w : myWorlds) {
-            String name = w.getName();
-            if (!worldsFromTheConfig.containsKey(name)) {
-                String generator = null;
-                if (this.defaultGens.containsKey(name)) {
-                    generator = this.defaultGens.get(name);
+        plugin.getMorePaperLib().scheduling().globalRegionalScheduler().run(() -> {
+            this.ensureConfigIsPrepared();
+            List<World> myWorlds = this.plugin.getServer().getWorlds();
+            for (World w : myWorlds) {
+                String name = w.getName();
+                if (!worldsFromTheConfig.containsKey(name)) {
+                    String generator = null;
+                    if (this.defaultGens.containsKey(name)) {
+                        generator = this.defaultGens.get(name);
+                    }
+                    this.addWorld(name, w.getEnvironment(), String.valueOf(w.getSeed()), w.getWorldType(), w.canGenerateStructures(), generator);
                 }
-                this.addWorld(name, w.getEnvironment(), String.valueOf(w.getSeed()), w.getWorldType(), w.canGenerateStructures(), generator);
             }
-        }
+        });
     }
 
     private void ensureConfigIsPrepared() {
@@ -735,49 +737,51 @@ public class WorldManager implements MVWorldManager {
      */
     @Override
     public void loadWorlds(boolean forceLoad) {
-        // Basic Counter to count how many Worlds we are loading.
-        int count = 0;
-        this.ensureConfigIsPrepared();
-        this.ensureSecondNamespaceIsPrepared();
+        plugin.getMorePaperLib().scheduling().globalRegionalScheduler().run(() -> {
+            // Basic Counter to count how many Worlds we are loading.
+            int count = 0;
+            this.ensureConfigIsPrepared();
+            this.ensureSecondNamespaceIsPrepared();
 
-        // Force the worlds to be loaded, ie don't just load new worlds.
-        if (forceLoad) {
-            // Remove all world permissions.
-            Permission allAccess = this.plugin.getServer().getPluginManager().getPermission("multiverse.access.*");
-            Permission allExempt = this.plugin.getServer().getPluginManager().getPermission("multiverse.exempt.*");
-            for (MultiverseWorld w : this.worlds.values()) {
-                // Remove this world from the master list
-                if (allAccess != null) {
-                    allAccess.getChildren().remove(w.getAccessPermission().getName());
+            // Force the worlds to be loaded, ie don't just load new worlds.
+            if (forceLoad) {
+                // Remove all world permissions.
+                Permission allAccess = this.plugin.getServer().getPluginManager().getPermission("multiverse.access.*");
+                Permission allExempt = this.plugin.getServer().getPluginManager().getPermission("multiverse.exempt.*");
+                for (MultiverseWorld w : this.worlds.values()) {
+                    // Remove this world from the master list
+                    if (allAccess != null) {
+                        allAccess.getChildren().remove(w.getAccessPermission().getName());
+                    }
+                    if (allExempt != null) {
+                        allExempt.getChildren().remove(w.getAccessPermission().getName());
+                    }
+                    this.plugin.getServer().getPluginManager().removePermission(w.getAccessPermission().getName());
+                    this.plugin.getServer().getPluginManager().removePermission(w.getExemptPermission().getName());
+                    // Special namespace for gamemodes
+                    this.plugin.getServer().getPluginManager().removePermission("mv.bypass.gamemode." + w.getName());
                 }
-                if (allExempt != null) {
-                    allExempt.getChildren().remove(w.getAccessPermission().getName());
+                // Recalc the all permission
+                this.plugin.getServer().getPluginManager().recalculatePermissionDefaults(allAccess);
+                this.plugin.getServer().getPluginManager().recalculatePermissionDefaults(allExempt);
+                this.worlds.clear();
+            }
+
+            for (Map.Entry<String, WorldProperties> entry : worldsFromTheConfig.entrySet()) {
+                if (worlds.containsKey(entry.getKey())) {
+                    continue;
                 }
-                this.plugin.getServer().getPluginManager().removePermission(w.getAccessPermission().getName());
-                this.plugin.getServer().getPluginManager().removePermission(w.getExemptPermission().getName());
-                // Special namespace for gamemodes
-                this.plugin.getServer().getPluginManager().removePermission("mv.bypass.gamemode." + w.getName());
+                if (!entry.getValue().getAutoLoad())
+                    continue;
+
+                if (doLoad(entry.getKey()))
+                    count++;
             }
-            // Recalc the all permission
-            this.plugin.getServer().getPluginManager().recalculatePermissionDefaults(allAccess);
-            this.plugin.getServer().getPluginManager().recalculatePermissionDefaults(allExempt);
-            this.worlds.clear();
-        }
 
-        for (Map.Entry<String, WorldProperties> entry : worldsFromTheConfig.entrySet()) {
-            if (worlds.containsKey(entry.getKey())) {
-                continue;
-            }
-            if (!entry.getValue().getAutoLoad())
-                continue;
-
-            if (doLoad(entry.getKey()))
-                count++;
-        }
-
-        // Simple Output to the Console to show how many Worlds were loaded.
-        Logging.config("%s - World(s) loaded.", count);
-        this.saveWorldsConfig();
+            // Simple Output to the Console to show how many Worlds were loaded.
+            Logging.config("%s - World(s) loaded.", count);
+            this.saveWorldsConfig();
+        });
     }
 
     private void ensureSecondNamespaceIsPrepared() {
