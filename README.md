@@ -16,7 +16,7 @@
 
 # About This Fork
 
-[Multiverse-Core Zeta](https://github.com/RenYuan-MC/Multiverse-Core-Zeta) is an implementation of a folia-compatible Multiverse-Core fork based on [ZetaUtils](https://github.com/MikuMC/ZetaUtils).  
+[Multiverse-Core Zeta](https://github.com/RenYuan-MC/Multiverse-Core_Zeta) is an implementation of a folia-compatible Multiverse-Core fork based on [ZetaUtils](https://github.com/MikuMC/ZetaUtils).  
 This fork is in the experimental stage, and there are still a lot of unresolved issues. Do not use in a production environment.  
 So far, world loading and importing are available, safe spawn location and safe teleportation are disabled.  
 
