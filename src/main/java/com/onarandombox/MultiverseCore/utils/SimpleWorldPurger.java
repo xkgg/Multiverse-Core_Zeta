@@ -102,6 +102,7 @@ public class SimpleWorldPurger implements WorldPurger {
         boolean specifiedAll = thingsToKill.contains("ALL");
         boolean specifiedAnimals = thingsToKill.contains("ANIMALS") || specifiedAll;
         boolean specifiedMonsters = thingsToKill.contains("MONSTERS") || specifiedAll;
+        // TODO: We can't get entities in global region, it should be rewrite
         List<Entity> worldEntities = world.getEntities();
         List<LivingEntity> livingEntities = new ArrayList<LivingEntity>(worldEntities.size());
         List<Projectile> projectiles = new ArrayList<Projectile>(worldEntities.size());

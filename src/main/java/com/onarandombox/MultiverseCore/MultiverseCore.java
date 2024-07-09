@@ -91,8 +91,7 @@ import com.onarandombox.MultiverseCore.listeners.MVWorldListener;
 import com.onarandombox.MultiverseCore.utils.*;
 import com.onarandombox.MultiverseCore.utils.metrics.MetricsConfigurator;
 import com.pneumaticraft.commandhandler.CommandHandler;
-import i.mrhua269.zutils.api.ZAPIEntryPoint;
-import i.mrhua269.zutils.shared.Utils;
+import ltd.rymc.folialib.FoliaLib;
 import me.main__.util.SerializationConfig.NoSuchPropertyException;
 import me.main__.util.SerializationConfig.SerializationConfig;
 import org.bukkit.Bukkit;
@@ -232,6 +231,7 @@ public class MultiverseCore extends JavaPlugin implements MVPlugin, Core {
 
     private final MorePaperLib morePaperLib = new MorePaperLib(this);
     private final TeleportUtil teleportUtil = new TeleportUtil(this);
+    private final FoliaLib foliaLib = new FoliaLib(this);
 
     @Override
     public void onLoad() {
@@ -271,9 +271,7 @@ public class MultiverseCore extends JavaPlugin implements MVPlugin, Core {
      */
     @Override
     public void onEnable() {
-        try {
-            Class.forName("i.mrhua269.zutils.nms." + Utils.getServerNMSVersion() + ".impl.FoliaWorldManagerImpl");
-        } catch (Exception e){
+        if (!foliaLib.experimentalAvailability()){
             Bukkit.getLogger().severe("Multiverse-Core Zeta does not support your minecraft version!");
             getServer().getPluginManager().disablePlugin(this);
             return;
@@ -309,7 +307,6 @@ public class MultiverseCore extends JavaPlugin implements MVPlugin, Core {
         // this function will be called every time a plugin registers a new envtype with MV
         // Setup & Load our Configuration files.
         loadConfigs();
-        ZAPIEntryPoint.init();
         if (this.multiverseConfig != null) {
             Logging.setShowingConfig(!getMVConfig().getSilentStart());
             this.worldManager.loadDefaultWorlds();
@@ -1245,5 +1242,9 @@ public class MultiverseCore extends JavaPlugin implements MVPlugin, Core {
 
     public TeleportUtil getTeleportUtil() {
         return this.teleportUtil;
+    }
+
+    public FoliaLib getFoliaLib() {
+        return this.foliaLib;
     }
 }
