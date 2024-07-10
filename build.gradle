@@ -176,7 +176,7 @@ shadowJar {
     relocate 'org.codehaus.jettison', 'com.onarandombox.jettison'
     relocate 'de.themoep.idconverter', 'com.onarandombox.idconverter'
     relocate 'space.arim.morepaperlib', 'com.onarandombox.morepaperlib'
-    relocate 'i.mrhua269.zutils', 'com.onarandombox.zutils'
+    relocate 'ltd.rymc.folialib', 'com.onarandombox.folialib'
 
     configurations = [project.configurations.shadowed]
 
