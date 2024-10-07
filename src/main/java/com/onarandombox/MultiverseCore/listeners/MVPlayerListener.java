@@ -169,6 +169,10 @@ public class MVPlayerListener implements Listener {
         if (event.isCancelled()) {
             return;
         }
+        if (event.getTo() == null) {
+            Logging.fine("Player '" + event.getPlayer().getName() + "' is teleporting to a null location!");
+            return;
+        }
         Player teleportee = event.getPlayer();
         CommandSender teleporter = teleportee;
         String teleporterName = MultiverseCore.getPlayerTeleporter(teleportee.getName());
@@ -247,32 +251,32 @@ public class MVPlayerListener implements Listener {
                 + "' to go to '" + worldName + "'.");
     }
 
-     // /**
-     //  * This method is called to adjust the portal location to the actual portal location (and not
-     //  * right outside of it.
-     //  * @param event The Event that was fired.
-     //  */
-     // @EventHandler(priority = EventPriority.LOWEST)
-     // public void playerPortalCheck(PlayerPortalEvent event) {
-     //     if (event.isCancelled() || event.getFrom() == null) {
-     //         return;
-     //     }
-     //
-     //     // REMEMBER! getTo MAY be NULL HERE!!!
-     //     // If the player was actually outside of the portal, adjust the from location
-     //     if (event.getFrom().getWorld().getBlockAt(event.getFrom()).getType() != Material.NETHER_PORTAL) {
-     //         Location newloc = this.plugin.getSafeTTeleporter().findPortalBlockNextTo(event.getFrom());
-     //         // TODO: Fix this. Currently, we only check for PORTAL blocks. I'll have to figure out what
-     //         // TODO: we want to do here.
-     //         if (newloc != null) {
-     //             event.setFrom(newloc);
-     //         }
-     //     }
-     //     // Wait for the adjust, then return!
-     //     if (event.getTo() == null) {
-     //         return;
-     //     }
-     // }
+    // /**
+    //  * This method is called to adjust the portal location to the actual portal location (and not
+    //  * right outside of it.
+    //  * @param event The Event that was fired.
+    //  */
+    // @EventHandler(priority = EventPriority.LOWEST)
+    // public void playerPortalCheck(PlayerPortalEvent event) {
+    //     if (event.isCancelled() || event.getFrom() == null) {
+    //         return;
+    //     }
+    //
+    //     // REMEMBER! getTo MAY be NULL HERE!!!
+    //     // If the player was actually outside of the portal, adjust the from location
+    //     if (event.getFrom().getWorld().getBlockAt(event.getFrom()).getType() != Material.NETHER_PORTAL) {
+    //         Location newloc = this.plugin.getSafeTTeleporter().findPortalBlockNextTo(event.getFrom());
+    //         // TODO: Fix this. Currently, we only check for PORTAL blocks. I'll have to figure out what
+    //         // TODO: we want to do here.
+    //         if (newloc != null) {
+    //             event.setFrom(newloc);
+    //         }
+    //     }
+    //     // Wait for the adjust, then return!
+    //     if (event.getTo() == null) {
+    //         return;
+    //     }
+    // }
 
     // /**
     //  * This method is called when a player actually portals via a vanilla style portal.
@@ -285,6 +289,7 @@ public class MVPlayerListener implements Listener {
     //     }
     //     // The adjust should have happened much earlier.
     //     if (event.getTo() == null) {
+    //         Logging.fine("Player '" + event.getPlayer().getName() + "' is portaling to NULL location.");
     //         return;
     //     }
     //     MultiverseWorld fromWorld = this.worldManager.getMVWorld(event.getFrom().getWorld().getName());
