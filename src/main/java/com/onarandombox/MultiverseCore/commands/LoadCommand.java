@@ -33,10 +33,12 @@ public class LoadCommand extends MultiverseCommand {
 
     @Override
     public void runCommand(CommandSender sender, List<String> args) {
-        if (this.plugin.getMVWorldManager().loadWorld(args.get(0))) {
-            Command.broadcastCommandMessage(sender, "Loaded world '" + args.get(0) + "'!");
-        } else {
-            sender.sendMessage("Error trying to load world '" + args.get(0) + "'!");
-        }
+        plugin.getMorePaperLib().scheduling().globalRegionalScheduler().run(() -> {
+            if (this.plugin.getMVWorldManager().loadWorld(args.get(0))) {
+                Command.broadcastCommandMessage(sender, "Loaded world '" + args.get(0) + "'!");
+            } else {
+                sender.sendMessage("Error trying to load world '" + args.get(0) + "'!");
+            }
+        });
     }
 }
