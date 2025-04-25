@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 import buscript.Buscript;
@@ -125,6 +126,8 @@ public class MultiverseCore extends JavaPlugin implements MVPlugin, Core {
     private AnchorManager anchorManager = new AnchorManager(this);
     // TODO please let's make this non-static
     private volatile MultiverseCoreConfiguration config;
+
+    public static final CompletableFuture<Void> status = new CompletableFuture<>();
 
     public MultiverseCore() {
         super();
@@ -310,7 +313,7 @@ public class MultiverseCore extends JavaPlugin implements MVPlugin, Core {
         if (this.multiverseConfig != null) {
             Logging.setShowingConfig(!getMVConfig().getSilentStart());
             this.worldManager.loadDefaultWorlds();
-            this.worldManager.loadWorlds(true);
+            this.worldManager.loadWorlds(true, status);
         } else {
             Logging.severe("Your configs were not loaded. Very little will function in Multiverse.");
         }

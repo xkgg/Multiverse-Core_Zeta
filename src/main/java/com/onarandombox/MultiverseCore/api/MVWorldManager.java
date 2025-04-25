@@ -18,6 +18,7 @@ import org.bukkit.generator.ChunkGenerator;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Multiverse 2 World Manager API
@@ -226,6 +227,14 @@ public interface MVWorldManager {
      *                  reset and not just load new worlds.
      */
     void loadWorlds(boolean forceLoad);
+
+    /**
+     * Load the Worlds &amp; Settings from the configuration file.
+     *
+     * @param forceLoad If set to true, this will perform a total
+     *                  reset and not just load new worlds.
+     */
+    void loadWorlds(boolean forceLoad, CompletableFuture<Void> future);
 
     /**
      * Loads the Worlds &amp; Settings for any worlds that bukkit loaded before us.

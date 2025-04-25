@@ -16,6 +16,7 @@ import com.onarandombox.MultiverseCore.api.MVWorldManager;
 import com.onarandombox.MultiverseCore.api.MultiverseWorld;
 import com.onarandombox.MultiverseCore.api.SafeTTeleporter;
 import com.onarandombox.MultiverseCore.api.WorldPurger;
+import com.onarandombox.MultiverseCore.event.MVDebugModeEvent;
 import com.onarandombox.MultiverseCore.event.MVWorldDeleteEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
@@ -47,6 +48,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -736,6 +738,11 @@ public class WorldManager implements MVWorldManager {
      */
     @Override
     public void loadWorlds(boolean forceLoad) {
+        loadWorlds(forceLoad, null);
+    }
+
+    @Override
+    public void loadWorlds(boolean forceLoad, CompletableFuture<Void> future) {
         plugin.getMorePaperLib().scheduling().globalRegionalScheduler().run(() -> {
             // Basic Counter to count how many Worlds we are loading.
             int count = 0;
@@ -780,6 +787,7 @@ public class WorldManager implements MVWorldManager {
             // Simple Output to the Console to show how many Worlds were loaded.
             Logging.config("%s - World(s) loaded.", count);
             this.saveWorldsConfig();
+            if (future != null) future.complete(null);
         });
     }
 
