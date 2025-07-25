@@ -3,13 +3,6 @@ name: 'Generic: Test'
 on:
   push:
     branches: [ "main" ]
-  workflow_call:
-    inputs:
-      plugin_name:
-        description: 'Plugin name'
-        required: true
-        type: string
-
 jobs:
   test-and-artifact:
     runs-on: ubuntu-latest
@@ -33,11 +26,11 @@ jobs:
           GITHUB_VERSION: pr${{ github.event.pull_request.number }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Artifact output
+      - name: Artifact output 上传
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.plugin_name }}-pr${{ github.event.pull_request.number }}
-          path: build/libs/${{ inputs.plugin_name }}-pr${{ github.event.pull_request.number }}.jar
+          name: jars
+          path: build/libs/Multiverse-core-*.jar
 
   comment-artifact:
     needs: test-and-artifact
