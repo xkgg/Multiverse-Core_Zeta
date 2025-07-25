@@ -23,9 +23,7 @@ jobs:
 
       - name: Run unit tests
         run: ./gradlew build
-        env:
-          GITHUB_VERSION: pr${{ github.event.pull_request.number }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
       - name: Artifact output 上传
         uses: actions/upload-artifact@v4
