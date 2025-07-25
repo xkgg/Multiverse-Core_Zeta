@@ -3,6 +3,7 @@ name: 'Generic: Test'
 on:
   push:
     branches: [ "main" ]
+  repository_dispatch:
 jobs:
   test-and-artifact:
     runs-on: ubuntu-latest
